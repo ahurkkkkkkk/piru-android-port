@@ -8,7 +8,7 @@ import com.piru.app.models.RouteOfAdministration
 import com.piru.app.models.SubstanceCategory
 
 /**
- * Per-dose timeline state — port of `ActiveSubstanceState`. Carries everything the
+ * Per-dose timeline state - port of `ActiveSubstanceState`. Carries everything the
  * curve renderer needs after PK/duration resolution so renderers don't touch the DB.
  */
 data class ActiveSubstanceState(
@@ -70,7 +70,7 @@ data class ActiveSubstanceState(
         /**
          * Build timeline state from a logged dose. Port of
          * `ActiveSubstanceState.from(entry:colorHex:)`. Returns null for doses with
-         * no honest acute curve (depot, unmodeled form, missing duration data) —
+         * no honest acute curve (depot, unmodeled form, missing duration data) -
          * those fall through to a timestamp marker.
          */
         fun from(
@@ -157,7 +157,7 @@ fun Substance.timelineDurationFor(entry: DoseEntry): DurationProfile? {
 }
 
 /**
- * Split dose entries into (curve states, timestamp markers) — port of
+ * Split dose entries into (curve states, timestamp markers) - port of
  * `ActiveSubstanceState.timeline(for:colors:)`. Supplements without an acute
  * profile are dropped entirely (no honest curve, no honest marker).
  */

@@ -10,7 +10,7 @@ data class PhaseShape(val onset: Double, val comeup: Double, val peak: Double, v
 private val DEFAULT_SHAPE = PhaseShape(0.08, 0.20, 0.25, 0.55)
 
 /**
- * Substance category — port of Piru/Domain/SubstanceCategory.swift.
+ * Substance category - port of Piru/Domain/SubstanceCategory.swift.
  * [rawValue] matches the DB `categories.category` strings exactly.
  * Colors ported from Shared/Assets.xcassets/category/<name>/accent.colorset.
  */

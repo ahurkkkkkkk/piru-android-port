@@ -19,7 +19,7 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 /**
- * Substance detail (bottom sheet) — port of SubstanceDetailView's section stack
+ * Substance detail (bottom sheet) - port of SubstanceDetailView's section stack
  * (header, dose/duration ladder, effects, overview, pharmacology, interactions).
  */
 @Composable
@@ -32,7 +32,7 @@ fun SubstanceDetailSheet(state: PiruState, name: String, onLogDose: () -> Unit) 
     ) {
         if (store == null) { Text("Loading…"); return }
         val substance = remember(name) { store.lookup(name) }
-        if (substance == null) { Text("$name — not in the library (custom substance)."); return }
+        if (substance == null) { Text("$name - not in the library (custom substance)."); return }
         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(substance.displayTitle, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
@@ -83,7 +83,7 @@ fun SubstanceDetailSheet(state: PiruState, name: String, onLogDose: () -> Unit) 
             Text("Mechanism", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Text(it, fontSize = 13.sp)
         }
-        // Interactions (class rules vs a hypothetical logged mix — static display of dangerous pairs)
+        // Interactions (class rules vs a hypothetical logged mix - static display of dangerous pairs)
         val classes = remember(substance) { runCatching { store.drugClasses(substance.name) }.getOrDefault(emptyList()) }
         if (classes.isNotEmpty()) {
             Spacer(Modifier.height(14.dp))

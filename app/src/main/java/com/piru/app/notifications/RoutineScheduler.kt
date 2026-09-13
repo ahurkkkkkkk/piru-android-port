@@ -20,7 +20,7 @@ import com.piru.app.data.UserDatabase
 import java.util.Calendar
 
 /**
- * Med-reminder scheduling — port of NotificationPreferencesStore + the routine
+ * Med-reminder scheduling - port of NotificationPreferencesStore + the routine
  * reminder layer onto AlarmManager. One exact alarm per (item, today's remaining
  * reminder time); rescheduled after each fire / boot / med edit.
  */

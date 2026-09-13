@@ -6,7 +6,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Polydrug interaction checking — port of Piru/Data/Services/Interactions.swift
+ * Polydrug interaction checking - port of Piru/Data/Services/Interactions.swift
  * (class-pair rules + enzyme layer + relevance gating).
  */
 object Interactions {

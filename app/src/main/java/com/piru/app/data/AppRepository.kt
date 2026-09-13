@@ -46,7 +46,7 @@ class AppRepository(val userDb: UserDatabase) {
 
     fun entryCountAndNewest(): Pair<Int, Long?> = userDb.entryCountAndNewest()
 
-    /** Color resolution — port of SubstancePalette.hex: user map → deterministic preset. */
+    /** Color resolution - port of SubstancePalette.hex: user map → deterministic preset. */
     fun colorHex(nameOrAlias: String): String {
         val store = runCatching { SubstanceStoreHolder.store }.getOrNull()
         val canonical = (store?.lookup(nameOrAlias)?.displayTitle ?: nameOrAlias).lowercase()

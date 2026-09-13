@@ -29,7 +29,7 @@ import java.util.Locale
 import kotlin.math.max
 
 /**
- * Journal tab — dose history grouped by day (MyMeds checklist + Active Now hero +
+ * Journal tab - dose history grouped by day (MyMeds checklist + Active Now hero +
  * per-day cards with a timeline thumbnail), port of EntryListView.swift.
  */
 @Composable

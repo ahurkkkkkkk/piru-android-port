@@ -19,7 +19,7 @@ import com.piru.app.data.SubstanceStoreHolder
 import com.piru.app.models.SubstanceCategory
 
 /**
- * Library tab — category family cards (port of LibraryBrowseView): each card is a
+ * Library tab - category family cards (port of LibraryBrowseView): each card is a
  * category-tinted gradient hero that pushes into the substance list for that family.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,7 +104,7 @@ fun FamilyCard(cat: SubstanceCategory, count: Int, modifier: Modifier = Modifier
     }
 }
 
-/** Search tab — ranked search over name/alias/brand (port of the dock's search + SubstanceSearchResultsList). */
+/** Search tab - ranked search over name/alias/brand (port of the dock's search + SubstanceSearchResultsList). */
 @Composable
 fun SearchScreen(state: PiruState, onOpenSubstance: (String) -> Unit) {
     var query by remember { mutableStateOf("") }

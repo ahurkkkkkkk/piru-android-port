@@ -7,7 +7,7 @@ import com.piru.app.models.PKModel
 import com.piru.app.models.SubstanceCategory
 
 /**
- * "Still in your body right now" readout — port of
+ * "Still in your body right now" readout - port of
  * Piru/Utilities/ActiveSubstanceCalculator.compute.
  */
 object ActiveSubstanceCalculator {
@@ -75,7 +75,7 @@ object ActiveSubstanceCalculator {
     }
 }
 
-/** Session clustering — port of the iOS SessionClustering grouping window. */
+/** Session clustering - port of the iOS SessionClustering grouping window. */
 object SessionClustering {
     /** Gap threshold (minutes) beyond which doses form a new session. */
     const val SESSION_GAP_MINUTES = 60 * 8.0

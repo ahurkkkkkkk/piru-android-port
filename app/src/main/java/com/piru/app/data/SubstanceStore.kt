@@ -479,7 +479,7 @@ class SubstanceStore private constructor(
     } catch (e: SQLiteException) { emptyList() }
 
     private fun prose(sid: Long): Pair<String?, String?> {
-        // descriptions: text/language/source_id — strict (enabled sources) then fail-open retry.
+        // descriptions: text/language/source_id - strict (enabled sources) then fail-open retry.
         val desc = resolveProse(sid, "descriptions", "text", "descriptions", lang = true)
         // mechanisms_summary: summary column, no field-priority rows yet; source-priority + language.
         val mech = resolveProse(sid, "mechanisms_summary", "summary", null, lang = true)
@@ -496,7 +496,7 @@ class SubstanceStore private constructor(
         try {
             db.rawQuery(strict, arrayOf(sid.toString())).use { if (it.moveToFirst()) return it.getString(0) }
         } catch (e: SQLiteException) { /* fall through to relaxed */ }
-        // relaxed: drop the source filter — but priorityCaseSQL references src.slug, so in
+        // relaxed: drop the source filter - but priorityCaseSQL references src.slug, so in
         // the relaxed query the join must survive with the alias.
         val relaxed = "SELECT t.$textCol FROM $table t JOIN sources src ON src.id = t.source_id $join" +
             " WHERE t.substance_id = ?$langFilter ORDER BY $rank ASC LIMIT 1"

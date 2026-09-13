@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.Dp
 
 /**
- * Quick Log — search-first dose staging with a tray, amount/route/unit editing,
+ * Quick Log - search-first dose staging with a tray, amount/route/unit editing,
  * branded strength chips, and alcohol by-volume mode. Port of the QuickLog flow
  * (QuickLogView + QuickLogDock + StagedDoseEditor).
  */
@@ -120,7 +120,7 @@ fun QuickLogSheet(state: PiruState, prefill: Pair<String, Double>?, onDone: () -
         OutlinedTextField(
             value = query, onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Substance — name, brand, or alias") },
+            placeholder = { Text("Substance - name, brand, or alias") },
             singleLine = true,
             leadingIcon = { Icon(Icons.Filled.Close, "Clear", tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp).clickable { query = "" }) },

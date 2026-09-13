@@ -12,7 +12,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Mechanism classes the tolerance engine tracks — port of
+ * Mechanism classes the tolerance engine tracks - port of
  * Piru/Data/Pharmacology/ReceptorClasses.swift with the exact constants (τ in
  * minutes; h = 60, d = 1440, mo = 30·d = 43_200).
  */
@@ -99,7 +99,7 @@ enum class ReceptorClass(
 }
 
 /**
- * PD tolerance replay — port of Piru/Data/Tolerance/ToleranceStore.swift using the
+ * PD tolerance replay - port of Piru/Data/Tolerance/ToleranceStore.swift using the
  * PDModel math. Given the dose log, replays receptor occupancy over 30-min steps
  * for up to a year and integrates the three right-shift layers per mechanism class.
  */

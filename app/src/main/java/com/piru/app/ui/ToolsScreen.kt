@@ -22,7 +22,7 @@ import kotlin.math.roundToInt
 import androidx.compose.ui.geometry.Offset
 
 /**
- * Tools tab — half-life calculator + body-weight setting + source priority + about.
+ * Tools tab - half-life calculator + body-weight setting + source priority + about.
  * Port of Piru/Views/Tools (HalfLifeCalculatorView, SteadyStateView, SourcePriorityView).
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -146,11 +146,11 @@ private fun AboutTool() {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
         Text("Piru for Android", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(6.dp))
-        Text("A dose journal and a pharmacopeia — what you took, and what it's still doing.♡",
+        Text("A dose journal and a pharmacopeia - what you took, and what it's still doing.♡",
             fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(14.dp))
         Text("1,689 substances modeled with one-compartment PK, zero-order alcohol kinetics, " +
-            "phase-shaped effect curves, and mechanism-class tolerance dynamics — a direct Kotlin port " +
+            "phase-shaped effect curves, and mechanism-class tolerance dynamics - a direct Kotlin port " +
             "of the iOS engines (PKModel / TimelineCurveModel / PDModel / Interactions).", fontSize = 12.sp)
         Spacer(Modifier.height(18.dp))
         Text("Credits", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
@@ -158,7 +158,7 @@ private fun AboutTool() {
         Row { Text("Android port by ", fontSize = 13.sp); LinkRow("ahura", "https://github.com/ahurkkkkkkk") }
         Spacer(Modifier.height(8.dp))
         Row { Text("Original iOS app made by ", fontSize = 13.sp); LinkRow("Lily", "https://github.com/pharmacykitty") }
-        Row { Text("— continued by ", fontSize = 13.sp); LinkRow("kageroumado", "https://github.com/kageroumado") }
+        Row { Text("- continued by ", fontSize = 13.sp); LinkRow("kageroumado", "https://github.com/kageroumado") }
         Spacer(Modifier.height(10.dp))
         Text("Source (upstream iOS): github.com/kageroumado/piru",
             fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)

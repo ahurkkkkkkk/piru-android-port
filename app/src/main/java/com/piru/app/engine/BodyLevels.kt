@@ -8,8 +8,8 @@ import com.piru.app.models.RouteOfAdministration
 import kotlin.math.ln
 
 /**
- * Resolves the one-compartment oral PK parameters a dose needs — half-life and
- * (ke, ka) — from a substance model and an acute duration profile.
+ * Resolves the one-compartment oral PK parameters a dose needs - half-life and
+ * (ke, ka) - from a substance model and an acute duration profile.
  * Port of Piru/Data/Pharmacology/PKResolver.swift.
  */
 object PKResolver {

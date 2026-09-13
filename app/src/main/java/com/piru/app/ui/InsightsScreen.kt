@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.background
 
 /**
- * Insights tab — Usage stats, "In your body" body-load graph, and tolerance gauges.
+ * Insights tab - Usage stats, "In your body" body-load graph, and tolerance gauges.
  * Port of InsightsView + InYourBodyView + ToleranceToolView (glance cards → detail).
  */
 @Composable
@@ -175,7 +175,7 @@ fun BodyLoadScreen(state: PiruState, now: Long, onBack: () -> Unit) {
     }
 }
 
-/** Gauge buckets — port of ToleranceBucket thresholds. */
+/** Gauge buckets - port of ToleranceBucket thresholds. */
 private fun bucketLabel(severity: Double): String = when {
     severity < 0.10 -> "No tolerance"
     severity < 0.30 -> "Mild"
@@ -254,7 +254,7 @@ fun SeverityBar(t: ToleranceEngine.ClassTolerance) {
     }
 }
 
-/** My Meds management — port of MyMedsHubView (add/edit daily items). */
+/** My Meds management - port of MyMedsHubView (add/edit daily items). */
 @Composable
 fun MyMedsScreen(state: PiruState, onBack: () -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current

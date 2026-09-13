@@ -23,7 +23,7 @@ import kotlinx.coroutines.*
 import java.util.Calendar
 
 /**
- * Root scaffold — 5-tab shell (Journal / Library / Tools / Insights / Search) plus the
+ * Root scaffold - 5-tab shell (Journal / Library / Tools / Insights / Search) plus the
  * Quick Log bottom sheet, port of ContentView.swift's tab structure.
  */
 @Composable

@@ -15,7 +15,7 @@ enum class RouteOfAdministration(val rawValue: String, val displayName: String) 
     Other("other", "Other");
 
     companion object {
-        /** Mirror of `from(string:)` — lowercase + trim, aliases folded. */
+        /** Mirror of `from(string:)` - lowercase + trim, aliases folded. */
         fun fromString(s: String): RouteOfAdministration {
             val k = s.trim().lowercase()
             return when (k) {
@@ -38,7 +38,7 @@ enum class RouteOfAdministration(val rawValue: String, val displayName: String) 
     }
 }
 
-/** Port of Piru/Domain/DoseUnit.swift — mass family only convertible. */
+/** Port of Piru/Domain/DoseUnit.swift - mass family only convertible. */
 object DoseUnit {
     private val TO_MG = mapOf("µg" to 0.001, "mg" to 1.0, "g" to 1000.0)
 

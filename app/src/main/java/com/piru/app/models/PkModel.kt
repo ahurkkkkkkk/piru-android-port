@@ -79,7 +79,7 @@ object PKModel {
         return hi
     }
 
-    // MARK: - Zero-order (capacity-limited) elimination — the alcohol shape
+    // MARK: - Zero-order (capacity-limited) elimination - the alcohol shape
 
     data class ZeroOrderKinetics(
         val bioavailability: Double,
@@ -159,7 +159,7 @@ object PKModel {
 }
 
 /**
- * Pharmacodynamic tolerance dynamics — port of Shared/Engines/PDModel.swift.
+ * Pharmacodynamic tolerance dynamics - port of Shared/Engines/PDModel.swift.
  */
 object PDModel {
 

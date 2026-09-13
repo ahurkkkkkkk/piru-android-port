@@ -1,6 +1,6 @@
 # Piru for Android
 
-Android port of [kageroumado/piru](https://github.com/kageroumado/piru) — an iOS
+Android port of [kageroumado/piru](https://github.com/kageroumado/piru) - an iOS
 dose journal + pharmacopeia (1,689 substances, all local, every claim cited).
 Kotlin + Jetpack Compose, minSdk 28.
 
@@ -41,21 +41,21 @@ both µ sign spellings), `ByVolumeDosing` (0.789 g/mL, 14 g standard drink),
 Five-tab shell like iOS (Journal / Library / Tools / Insights / Search) with the
 floating "Log a dose" action:
 
-- **Journal** — day-grouped session cards with timeline thumbnails, Active Now hero
+- **Journal** - day-grouped session cards with timeline thumbnails, Active Now hero
   (curve strip + % in body), My Meds completion-ring checklist with take-today logging.
-- **Quick Log** (bottom sheet) — search-first staging with recent chips, branded
+- **Quick Log** (bottom sheet) - search-first staging with recent chips, branded
   strength chips (Concerta 18/27/36/54), route/unit editors, dose-level readout
   (threshold/light/common/strong/heavy), alcohol by-volume mode (mL × ABV → g +
   standard drinks), Now / −30 min / −1 h staging, batch commit with session clustering.
-- **Library** — category family cards (iOS gradient + accent colors) → substance
+- **Library** - category family cards (iOS gradient + accent colors) → substance
   lists → detail sheet: description, dose ladder per route, duration phases,
   mechanism, combinations-to-watch from the rule DB, aliases, chemistry.
-- **Insights** — Usage bar chart, body-load-over-time graph (normalized per series),
+- **Insights** - Usage bar chart, body-load-over-time graph (normalized per series),
   tolerance gauges (severity split bar Tachyphylaxis|Tolerance|Deep + response
   fraction + recovery forecast via the PDModel decay inverse), My Meds manager.
-- **Tools** — half-life curve calculator (interactive dose/half-life sliders),
+- **Tools** - half-life curve calculator (interactive dose/half-life sliders),
   source-priority reorder/enable, About.
-- **Reminders** — AlarmManager exact alarms per daily-item time + POST_NOTIFICATIONS
+- **Reminders** - AlarmManager exact alarms per daily-item time + POST_NOTIFICATIONS
   + boot reschedule.
 
 ## Honest gaps vs iOS (later phases)
@@ -75,8 +75,8 @@ floating "Log a dose" action:
 
 ## Credits
 
-- Android port by **ahura** — [github.com/ahurkkkkkkk](https://github.com/ahurkkkkkkk)
-- Original iOS app made by **Lily** — [github.com/pharmacykitty](https://github.com/pharmacykitty)
+- Android port by **ahura** - [github.com/ahurkkkkkkk](https://github.com/ahurkkkkkkk)
+- Original iOS app made by **Lily** - [github.com/pharmacykitty](https://github.com/pharmacykitty)
   (continued by [kageroumado](https://github.com/kageroumado))
 - Upstream source: [github.com/kageroumado/piru](https://github.com/kageroumado/piru)
 

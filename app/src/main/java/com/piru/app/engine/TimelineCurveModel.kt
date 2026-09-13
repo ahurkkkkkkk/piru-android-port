@@ -10,7 +10,7 @@ import kotlin.math.min
 import kotlin.math.pow
 
 /**
- * Pure curve-synthesis math behind the timeline graph — 1:1 port of
+ * Pure curve-synthesis math behind the timeline graph - 1:1 port of
  * `Shared/Engines/TimelineCurveModel.swift`. Everything is a pure function of its
  * inputs: the phase-shaped effect curves, the Hill redose merge, amplitude
  * compression, tail scanning, and lane/tick layout.

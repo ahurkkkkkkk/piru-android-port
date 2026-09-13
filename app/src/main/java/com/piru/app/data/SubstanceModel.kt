@@ -92,7 +92,7 @@ data class Substance(
         } ?: r.duration
     }
 
-    /** Timeline duration — the honest acute profile; null when implausible/missing (port of `timelineDuration`). */
+    /** Timeline duration - the honest acute profile; null when implausible/missing (port of `timelineDuration`). */
     fun timelineDuration(route: RouteOfAdministration, saltForm: String?, isomer: String?): DurationProfile? {
         if (durationImplausible) return null
         return durationFor(route, saltForm, isomer)?.takeIf { it.estimatedTotalMinutes > 0 }

@@ -18,7 +18,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Port of `Shared/TimelineGraphView.swift` — per-substance effect curves stacked or
+ * Port of `Shared/TimelineGraphView.swift` - per-substance effect curves stacked or
  * overlaid, now-line, dose markers on the baseline, tap-to-scrub readout.
  */
 @Composable
