@@ -58,6 +58,27 @@ floating "Log a dose" action:
 - **Reminders** - AlarmManager exact alarms per daily-item time + POST_NOTIFICATIONS
   + boot reschedule.
 
+## Upgrades over the original iOS app
+
+These exist only in this Android port:
+
+1. **Condition search (DSM-lite)** - every indication label on every substance is indexed and
+   searchable: search "anxiety", tap, and read what the condition *is* (curated explainers served
+   from the API) alongside every substance labeled for it.
+2. **Used-for / Effects / Contraindications sections** on each substance card - on/off-label uses,
+   side effects by category, and boxed warnings (with "boxed" flags), all source-cited from the DB.
+3. **AI translation (user's own Gemini key)** - one tap translates a substance's "Used for" labels
+   to Persian / Arabic / Turkish / Spanish / Chinese. The key lives only on the phone and only label
+   texts are sent to Google; results are cached.
+4. **Accounts + cloud sync** (ahura.site/piru-api) - your dose journal, meds and colors sync across
+   phones and survive app deletion; sign up with email/password or log in; push+pull with auto-sync
+   after each dose logged.
+5. **Friend circle + adherence leaderboard** - add friends by 6-char codes; a weekly leaderboard
+   ranks who takes their meds on time the most.
+6. **Darooyab.ir lookup** built into every substance card (Persian drug info) - proxied through the
+   server, which also crawls and caches darooyab's catalogue continuously.
+7. **Body-weight-aware zero-order alcohol scaling** surfaced in the PK calculator.
+
 ## Honest gaps vs iOS (later phases)
 
 - Apple Health / Health Connect vitals overlay (heart rate on session timelines).

@@ -5,6 +5,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.clickable
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -23,8 +26,10 @@ import kotlin.math.roundToInt
  * (header, dose/duration ladder, effects, overview, pharmacology, interactions).
  */
 @Composable
-fun SubstanceDetailSheet(state: PiruState, name: String, onLogDose: () -> Unit) {
+fun SubstanceDetailSheet(state: PiruState, name: String, onLogDose: () -> Unit, onOpenCondition: (String) -> Unit = {}) {
     val store = if (SubstanceStoreHolder.ready) SubstanceStoreHolder.store else null
+    var translatedNote by remember(name) { mutableStateOf("") }
+    var indicationsTranslated by remember(name) { mutableStateOf(false) }
     Column(
         Modifier.fillMaxWidth().heightIn(max = 620.dp)
             .verticalScroll(rememberScrollState())
@@ -83,6 +88,55 @@ fun SubstanceDetailSheet(state: PiruState, name: String, onLogDose: () -> Unit) 
             Text("Mechanism", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Text(it, fontSize = 13.sp)
         }
+        // Used for: searchable condition tags (DSM-lite blurbs open on tap)
+        val indications = remember(substance) { runCatching { store.indicationsFor(substance.id) }.getOrDefault(emptyList()) }
+        if (indications.isNotEmpty()) {
+            Spacer(Modifier.height(14.dp))
+            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Text("Used for", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f))
+                TranslationButton(state, store, substance, indications.map { it.text }, { translated ->
+                    indicationsTranslated = translated
+                })
+            }
+            val tr = state.translated[substance.id]
+            FlowRowTags(state, store, substance,
+                if (indicationsTranslated && tr != null) indications.map { tr[it.text] ?: it.text } else indications.map { it.text },
+                onOpenCondition)
+            state.translateError?.let {
+                Spacer(Modifier.height(4.dp))
+                Text(it, fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
+            }
+        }
+
+        // Side effects
+        val effects = remember(substance) { runCatching { store.effectsFor(substance.id) }.getOrDefault(emptyList()) }
+        if (effects.isNotEmpty()) {
+            Spacer(Modifier.height(14.dp))
+            Text("Effects", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            val byCat = effects.groupBy { it.category ?: "Other" }
+            byCat.entries.take(6).forEach { (cat, list) ->
+                Spacer(Modifier.height(4.dp))
+                Text(cat, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(list.joinToString(", ") { it.text }, fontSize = 12.sp)
+            }
+        }
+
+        // Contraindications
+        val contras = remember(substance) { runCatching { store.contraindicationsFor(substance.id) }.getOrDefault(emptyList()) }
+        if (contras.isNotEmpty()) {
+            Spacer(Modifier.height(14.dp))
+            Text("Contraindications", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            contras.take(8).forEach { k ->
+                val label = k.text ?: k.flag?.replaceFirstChar { it.uppercase(Locale.US) } ?: return@forEach
+                Row {
+                    Text("• ", color = if (k.boxed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(label, fontSize = 12.sp, color = if (k.boxed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
+                    if (k.boxed) Text("  (boxed warning)", fontSize = 10.sp, color = MaterialTheme.colorScheme.error)
+                }
+            }
+        }
+
         // Interactions (class rules vs a hypothetical logged mix - static display of dangerous pairs)
         val classes = remember(substance) { runCatching { store.drugClasses(substance.name) }.getOrDefault(emptyList()) }
         if (classes.isNotEmpty()) {
@@ -109,6 +163,44 @@ fun SubstanceDetailSheet(state: PiruState, name: String, onLogDose: () -> Unit) 
                 r.note?.let { Text(it, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             }
         }
+        // Darooyab.ir (Persian drug info) via the ahura.site proxy
+        Spacer(Modifier.height(14.dp))
+        Text("Darooyab (Persian info)", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        var darooyabItems by remember(name) { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+        var darooyabBusy by remember(name) { mutableStateOf(false) }
+        var darooyabErr by remember(name) { mutableStateOf<String?>(null) }
+        val cs = rememberCoroutineScope()
+        val ctx = androidx.compose.ui.platform.LocalContext.current
+        OutlinedButton(onClick = {
+            darooyabBusy = true; darooyabErr = null
+            cs.launch {
+                com.piru.app.data.SyncClient(state.repo).darooyab(substance.name).fold(
+                    onSuccess = { darooyabItems = it; darooyabBusy = false },
+                    onFailure = { darooyabErr = it.message; darooyabBusy = false },
+                )
+            }
+        }, enabled = !darooyabBusy) {
+            Text(if (darooyabBusy) "Searching…" else "Search darooyab.ir")
+        }
+        darooyabErr?.let { Text(it, fontSize = 11.sp, color = MaterialTheme.colorScheme.error) }
+        darooyabItems.take(8).forEach { (title, href) ->
+            Text(
+                title, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .clickable {
+                        runCatching {
+                            ctx.startActivity(
+                                android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse(href),
+                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        }
+                    },
+            )
+        }
+
         // Aliases
         if (substance.aliases.isNotEmpty()) {
             Spacer(Modifier.height(14.dp))

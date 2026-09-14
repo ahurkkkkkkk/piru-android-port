@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
@@ -133,21 +134,63 @@ fun QuickLogSheet(state: PiruState, prefill: Pair<String, Double>?, onDone: () -
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(Modifier.padding(vertical = 4.dp)) {
-                    results.forEach { hit ->
-                        Row(
-                            Modifier.fillMaxWidth().clickable { stage(hit); query = "" }.padding(horizontal = 12.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Box(Modifier.size(8.dp).clip(CircleShape).background(hexColor(state.colorHex(hit.substance.name))))
-                            Spacer(Modifier.width(10.dp))
-                            Column(Modifier.weight(1f)) {
-                                Text(hit.substance.displayTitle, fontSize = 14.sp)
-                                hit.matchedAlias?.let {
-                                    Text("as “$it” · ${hit.substance.category.label}", fontSize = 11.sp,
+                    Text("Substances", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 4.dp))
+                    Column(Modifier.padding(vertical = 4.dp)) {
+                        results.forEach { hit ->
+                            Row(
+                                Modifier.fillMaxWidth().clickable { stage(hit); query = "" }.padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Box(Modifier.size(8.dp).clip(CircleShape).background(hexColor(state.colorHex(hit.substance.name))))
+                                Spacer(Modifier.width(10.dp))
+                                Column(Modifier.weight(1f)) {
+                                    Text(hit.substance.displayTitle, fontSize = 14.sp)
+                                    hit.matchedAlias?.let {
+                                        Text("as “$it” · ${hit.substance.category.label}", fontSize = 11.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                                Icon(Icons.Filled.Star, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Condition search results
+        val conditionHits = remember(query) {
+            query.takeIf { it.isNotBlank() }?.let { runCatching { SubstanceStoreHolder.store.conditionIndex() }.getOrDefault(emptyList()).filter { (cond, _) ->
+                cond.lowercase().contains(query.lowercase())
+            }?.map { (cond, sub) -> com.piru.app.data.Condition(cond, sub) }?.take(10) } ?: emptyList()
+        }
+
+        if (conditionHits.isNotEmpty()) {
+            Surface(
+                shape = RoundedCornerShape(12.dp), tonalElevation = 2.dp,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(Modifier.padding(vertical = 4.dp)) {
+                    Text("Conditions", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 4.dp))
+                    Column(Modifier.padding(vertical = 4.dp)) {
+                        conditionHits.forEach { cond ->
+                            Row(
+                                Modifier.fillMaxWidth().clickable {
+                                    query = cond.text
+                                }.padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Icon(Icons.Filled.Search, "Condition",
+                                    Modifier.size(20.dp), tint = MaterialTheme.colorScheme.secondary)
+                                Spacer(Modifier.width(10.dp))
+                                Column(Modifier.weight(1f)) {
+                                    Text(cond.text, fontSize = 14.sp)
+                                    Text(cond.substanceDisplayName, fontSize = 11.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
-                            Icon(Icons.Filled.Star, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
                         }
                     }
                 }

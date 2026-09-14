@@ -7,6 +7,9 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 /** App-level repository bridging the two stores + observable state. */
@@ -24,10 +27,28 @@ class AppRepository(val userDb: UserDatabase) {
     }
 
     suspend fun entries(): List<DoseEntry> = userDb.allEntries()
+    /** Debounced background sync to ahura.site when signed in. */
+    private var syncJob: kotlinx.coroutines.Job? = null
+    val syncScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
+    fun scheduleAutoSync() {
+        if (getSetting("auth_token").isNullOrBlank()) return
+        syncJob?.cancel()
+        syncJob = syncScope.launch {
+            delay(2_000)
+            runCatching { SyncClient(this@AppRepository).push() }
+        }
+    }
+
+    suspend fun pullOnLaunch(): Boolean {
+        if (getSetting("auth_token").isNullOrBlank()) return false
+        return runCatching { SyncClient(this).pull().isSuccess }.getOrDefault(false)
+    }
+
     suspend fun logEntry(e: DoseEntry) {
         userDb.insertEntry(e)
         userDb.touchRecent(e)
         notifyChanged()
+        scheduleAutoSync()
     }
 
     suspend fun updateEntry(e: DoseEntry) { userDb.updateEntry(e); notifyChanged() }
@@ -97,6 +118,20 @@ class AppRepository(val userDb: UserDatabase) {
     }
 
     // ---- profile ----
+
+    fun getSetting(key: String): String? = userDb.getSetting(key)
+    fun setSetting(key: String, value: String) = userDb.setSetting(key, value)
+
+    /** Weekly adherence: taken doses vs scheduled reminder-minutes this week. */
+    fun adherenceThisWeek(): Double {
+        val weekAgo = System.currentTimeMillis() - 7 * 86_400_000L
+        val items = userDb.allDailyItems().filter { !it.isAsNeeded && it.reminderMinutes.isNotEmpty() }
+        val scheduled = items.sumOf { it.reminderMinutes.size } * 7.0
+        val doses = userDb.allEntries().count { it.timestamp >= weekAgo && it.isBackgroundMed }
+        val taken = userDb.allEntries().count { it.timestamp >= weekAgo }
+        if (scheduled <= 0) return taken.toDouble()
+        return doses / scheduled
+    }
 
     fun weightKg(): Double = userDb.weightKg() ?: com.piru.app.models.PKModel.REFERENCE_BODY_WEIGHT_KG
     fun setWeightKg(v: Double) = userDb.setWeightKg(v)

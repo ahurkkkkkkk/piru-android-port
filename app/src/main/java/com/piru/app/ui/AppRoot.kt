@@ -33,6 +33,7 @@ fun PiruAppRoot(activity: MainActivity) {
     var quickLogOpen by remember { mutableStateOf(false) }
     var quickLogPrefill by remember { mutableStateOf<Pair<String, Double>?>(null) }
     var detailName by remember { mutableStateOf<String?>(null) }
+    var conditionName by remember { mutableStateOf<String?>(null) }
     val state = remember { PiruState(repo) }
     val scope = rememberCoroutineScope()
     val viewTick = remember { mutableStateOf(System.currentTimeMillis()) }
@@ -40,6 +41,8 @@ fun PiruAppRoot(activity: MainActivity) {
     // Poll the store readiness + refresh whenever the generation changes.
     LaunchedEffect(state) {
         state.attach()
+        repo.pullOnLaunch()
+        state.refresh()
         while (isActive) {
             state.refresh()
             delay(5_000)
@@ -95,7 +98,7 @@ fun PiruAppRoot(activity: MainActivity) {
                 1 -> LibraryScreen(state, onOpenSubstance = { detailName = it })
                 2 -> ToolsScreen(state)
                 3 -> InsightsScreen(state, now)
-                4 -> SearchScreen(state, onOpenSubstance = { detailName = it })
+                4 -> SearchScreen(state, onOpenSubstance = { detailName = it }, onOpenCondition = { conditionName = it })
             }
         }
     }
@@ -107,7 +110,13 @@ fun PiruAppRoot(activity: MainActivity) {
             quickLogOpen = true
         }
         ModalBottomSheet(onDismissRequest = { detailName = null }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-            SubstanceDetailSheet(state, name, onLogDose = { detailName = null; openLog = true })
+            SubstanceDetailSheet(state, name, onLogDose = { detailName = null; openLog = true }, onOpenCondition = { conditionName = it })
+        }
+    }
+
+    conditionName?.let { cond ->
+        ModalBottomSheet(onDismissRequest = { conditionName = null }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+            ConditionSheet(state, cond, onOpenSubstance = { conditionName = null; detailName = it })
         }
     }
 
@@ -129,6 +138,8 @@ fun PiruAppRoot(activity: MainActivity) {
 class PiruState(val repo: AppRepository) {
     var entries by mutableStateOf<List<com.piru.app.data.DoseEntry>>(emptyList())
     var weightKg by mutableStateOf(60.0)
+    val store: com.piru.app.data.SubstanceStore?
+        get() = if (SubstanceStoreHolder.ready) SubstanceStoreHolder.store else null
     var storeReady by mutableStateOf(false)
     var lastGen by mutableIntStateOf(0)
 
@@ -138,6 +149,11 @@ class PiruState(val repo: AppRepository) {
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         repo.onChange { scope?.launch(Dispatchers.Main) { refresh() } }
     }
+
+    /** Gemini translation cache per substance id (this session). */
+    val translated = mutableStateMapOf<Long, Map<String, String>>()
+    fun setTranslated(id: Long, m: Map<String, String>) { translated[id] = m }
+    var translateError by mutableStateOf<String?>(null)
 
     suspend fun refresh() {
         if (!SubstanceStoreHolder.ready) { storeReady = false; return }

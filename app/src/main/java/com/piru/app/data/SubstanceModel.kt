@@ -111,3 +111,39 @@ data class Substance(
 
 /** Product strengths for branded chips (Concerta → 18/27/36/54 mg). */
 data class ProductStrengths(val product: String, val strengthsMg: List<Double>, val form: String?)
+
+
+/** A searchable condition/indication with its associated substance. */
+data class Condition(
+    val text: String,
+    val substanceDisplayName: String,
+)
+
+/** Indication for a substance (with citation). */
+data class Indication(
+    val text: String,
+    val citationId: Long? = null,
+)
+
+/** Contraindication with optional flag and boxed warning. */
+data class Contraindication(
+    val text: String?,
+    val flag: String? = null,
+    val boxed: Boolean = false,
+)
+
+/** Side effect with kind and category. */
+data class Effect(
+    val text: String,
+    val kind: String? = null,
+    val category: String? = null,
+    val vocabId: String? = null,
+)
+
+/** Off-target binding with concern level. */
+data class OffTarget(
+    val target: String,
+    val kiIc50Nm: Double? = null,
+    val concern: String? = null,
+    val consequence: String? = null,
+)

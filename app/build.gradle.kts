@@ -12,8 +12,8 @@ android {
         applicationId = "com.piru.app"
         minSdk = 28
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0-android"
+        versionCode = 2
+        versionName = "1.1-android"
     }
 
     buildTypes {

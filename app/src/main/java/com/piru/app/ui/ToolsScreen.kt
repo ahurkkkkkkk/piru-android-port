@@ -29,7 +29,7 @@ import androidx.compose.ui.geometry.Offset
 @Composable
 fun ToolsScreen(state: PiruState) {
     var tab by remember { mutableIntStateOf(0) }
-    val titles = listOf("PK Calculator", "Sources", "About")
+    val titles = listOf("PK Calculator", "Sources", "Translation", "About")
     Column(Modifier.fillMaxSize()) {
         ScrollableTabRow(selectedTabIndex = tab, edgePadding = 12.dp) {
             titles.forEachIndexed { i, t ->
@@ -39,6 +39,7 @@ fun ToolsScreen(state: PiruState) {
         when (tab) {
             0 -> HalfLifeTool(state)
             1 -> SourcesTool(state)
+            2 -> TranslationTool(state)
             else -> AboutTool()
         }
     }
@@ -137,6 +138,41 @@ private fun SourcesTool(state: PiruState) {
                 }, enabled = i > 0) { Text("↑", fontSize = 14.sp) }
             }
         }
+    }
+}
+
+@Composable
+private fun TranslationTool(state: PiruState) {
+    var key by remember { mutableStateOf(state.repo.getSetting("gemini_key") ?: "") }
+    var lang by remember { mutableStateOf(state.repo.getSetting("ui_lang") ?: "fa") }
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
+        Text("AI translation (Gemini)", fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "Piru is in English. Tap the FA button on a substance Used-for list and this translates " +
+            "the labels to your language with your own Gemini key (free from aistudio.google.com/api-keys). " +
+            "The key stays on your phone; only the label texts are sent to Google.",
+            fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(
+            value = key, onValueChange = { key = it }, label = { Text("Gemini API key") },
+            singleLine = true, modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(8.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Language: ", fontSize = 13.sp)
+            listOf("fa" to "Persian", "ar" to "Arabic", "tr" to "Turkish", "es" to "Spanish", "zh" to "Chinese").forEach { (code, name) ->
+                FilterChip(selected = lang == code, onClick = { lang = code }, label = { Text(name, fontSize = 11.sp) })
+                Spacer(Modifier.width(4.dp))
+            }
+        }
+        Spacer(Modifier.height(12.dp))
+        Button(onClick = {
+            state.repo.setSetting("gemini_key", key.trim())
+            state.repo.setSetting("ui_lang", lang)
+            state.translateError = "Saved. Translations will use $lang."
+        }) { Text("Save") }
     }
 }
 

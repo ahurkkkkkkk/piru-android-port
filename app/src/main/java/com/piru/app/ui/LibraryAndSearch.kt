@@ -106,7 +106,7 @@ fun FamilyCard(cat: SubstanceCategory, count: Int, modifier: Modifier = Modifier
 
 /** Search tab - ranked search over name/alias/brand (port of the dock's search + SubstanceSearchResultsList). */
 @Composable
-fun SearchScreen(state: PiruState, onOpenSubstance: (String) -> Unit) {
+fun SearchScreen(state: PiruState, onOpenSubstance: (String) -> Unit, onOpenCondition: (String) -> Unit = {}) {
     var query by remember { mutableStateOf("") }
     val store = if (SubstanceStoreHolder.ready) SubstanceStoreHolder.store else null
     val hits = remember(query) { query.takeIf { it.isNotBlank() && store != null }?.let { store!!.search(it, 40) } ?: emptyList() }
@@ -120,7 +120,27 @@ fun SearchScreen(state: PiruState, onOpenSubstance: (String) -> Unit) {
         if (query.isBlank()) {
             EmptyHint("Search by substance name, brand (“Concerta”, “Vyvanse”), or alias.")
         } else {
+            val condHits = remember(query) { query.takeIf { it.isNotBlank() }?.let { q ->
+                runCatching { state.store?.conditionIndex()?.filter { it.first.lowercase().contains(q.lowercase()) }?.map { com.piru.app.data.Condition(it.first, it.second) }?.distinctBy { it.text }?.take(12) }
+                    .getOrNull() ?: emptyList()
+            } ?: emptyList() }
             LazyColumn(Modifier.fillMaxSize()) {
+                if (condHits.isNotEmpty()) {
+                    item { SectionTitle("Conditions") }
+                    items(condHits, key = { "c:" + it.text }) { cond ->
+                        Row(
+                            Modifier.fillMaxWidth().clickable { onOpenCondition(cond.text) }
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(cond.text, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                Text(cond.substanceDisplayName, fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+                    }
+                }
                 items(hits) { hit ->
                     val s = hit.substance
                     Row(

@@ -313,6 +313,155 @@ class SubstanceStore private constructor(
         } catch (e: SQLiteException) { emptyList() }
     }
 
+
+    /** Split a DailyMed-style "Indications & Usage" blob into individual "For ..." phrases. */
+    private fun splitIndication(text: String): List<String> {
+        val t = text.trim()
+        // strip the label header if present
+        val body = t.substringAfter("Usage", t).trim()
+        if (body.length <= 90 && !body.contains(". For ")) return listOf(body)
+        val parts = Regex("""(?<=\.)\s*[Ff]or\s""").split(body).ifEmpty { listOf(body) }
+        return parts.map { piece ->
+            var p = piece.trim()
+            // "IR tablet, ODT, oral solution: Treatment of ..." -> keep the indication after the colon
+            val colon = p.indexOf(": ")
+            if (colon in 4..60 && p.substring(0, colon).none { it == '.' }) p = p.substring(colon + 2).trim()
+            if (!p.startsWith("For ") && !p.startsWith("Treatment") && !p.startsWith("Management") &&
+                !p.startsWith("Relief") && !p.startsWith("Prophylaxis") && p.length > 60) p = "For " + p
+            p
+        }
+            .filter { it.length in 8..140 && !it.startsWith("Usage") }
+            .distinct()
+            .ifEmpty { listOf(body.trimEnd('.').take(120)) }
+    }
+
+    /** Searchable condition index: returns (condition, substanceDisplayName) pairs for typeahead. */
+    fun conditionIndex(): List<Pair<String, String>> {
+        if (conditionIndexCache != null && !sourceOrderChangedSinceCache()) return conditionIndexCache!!
+        val sql = """
+            SELECT i.text, COALESCE(s.display_name, s.canonical_name)
+            FROM indications i
+            JOIN substances s ON s.id = i.substance_id
+            WHERE s.is_stub = 0
+        """.trimIndent()
+        val out = try {
+            db.rawQuery(sql, null).use { c ->
+                buildList {
+                    while (c.moveToNext()) {
+                        val text = c.getString(0)
+                        for (piece in splitIndication(text)) add(piece to c.getString(1))
+                    }
+                }
+            }
+        } catch (e: SQLiteException) { emptyList() }
+        conditionIndexCache = out
+        cachedSignature = signature()
+        return out
+    }
+
+    private var conditionIndexCache: List<Pair<String, String>>? = null
+    private var cachedSignature: String = ""
+    private fun sourceOrderChangedSinceCache(): Boolean = signature() != cachedSignature
+
+    /** All indications for a substance, split into "For ..." phrases (detail view). */
+    fun indicationsFor(sid: Long): List<Indication> {
+        val sql = """
+            SELECT i.text, i.citation_id
+            FROM indications i JOIN sources src ON src.id = i.source_id
+            WHERE i.substance_id = ? AND src.slug IN ($enabledSourceList)
+            ORDER BY $priorityCaseSQL ASC
+        """.trimIndent()
+        return try {
+            db.rawQuery(sql, arrayOf(sid.toString())).use { c ->
+                buildList {
+                    while (c.moveToNext()) {
+                        val text = c.getString(0)
+                        val cit = if (c.isNull(1)) null else c.getLong(1)
+                        splitIndication(text).forEach { add(Indication(it, cit)) }
+                    }
+                }
+            }
+        } catch (e: SQLiteException) { emptyList() }
+    }
+
+    /** Contraindications for a substance. */
+    fun contraindicationsFor(sid: Long): List<Contraindication> {
+        val sql = """
+            SELECT c.text, c.flag, c.is_boxed_warning
+            FROM contraindications c JOIN sources src ON src.id = c.source_id
+            WHERE c.substance_id = ? AND src.slug IN ($enabledSourceList)
+            ORDER BY c.is_boxed_warning DESC, c.text
+        """.trimIndent()
+        return try {
+            db.rawQuery(sql, arrayOf(sid.toString())).use { c ->
+                buildList {
+                    while (c.moveToNext()) add(Contraindication(c.getString(0), c.getString(1), c.getInt(2) == 1))
+                }
+            }
+        } catch (e: SQLiteException) { emptyList() }
+    }
+
+    /** Side effects for a substance. */
+    fun effectsFor(sid: Long): List<Effect> {
+        val sql = """
+            SELECT e.text, e.kind, e.effect_category, e.vocab_id
+            FROM effects e JOIN sources src ON src.id = e.source_id
+            WHERE e.substance_id = ? AND src.slug IN ($enabledSourceList)
+            ORDER BY e.effect_category, e.text
+        """.trimIndent()
+        return try {
+            db.rawQuery(sql, arrayOf(sid.toString())).use { c ->
+                buildList {
+                    while (c.moveToNext()) add(Effect(c.getString(0), c.getString(1), c.getString(2), c.getString(3)))
+                }
+            }
+        } catch (e: SQLiteException) { emptyList() }
+    }
+
+    /** Off-target bindings for a substance. */
+    fun offTargetsFor(sid: Long): List<OffTarget> {
+        val sql = """
+            SELECT o.target, o.ki_or_ic50_nm, o.concern_level, o.clinical_consequence
+            FROM off_targets o JOIN sources src ON src.id = o.source_id
+            WHERE o.substance_id = ? AND src.slug IN ($enabledSourceList)
+            ORDER BY o.concern_level DESC, o.target
+        """.trimIndent()
+        return try {
+            db.rawQuery(sql, arrayOf(sid.toString())).use { c ->
+                buildList {
+                    while (c.moveToNext()) add(OffTarget(
+                        c.getString(0),
+                        if (c.isNull(1)) null else c.getDouble(1),
+                        c.getString(2),
+                        c.getString(3)
+                    ))
+                }
+            }
+        } catch (e: SQLiteException) { emptyList() }
+    }
+
+
+    /** Substances whose indications include this condition text (split-aware). */
+    fun substancesForCondition(text: String): List<ConditionSub> {
+        val sql = "SELECT s.id, COALESCE(s.display_name, s.canonical_name), i.text" +
+            " FROM indications i JOIN substances s ON s.id = i.substance_id" +
+            " WHERE i.text LIKE ? AND s.is_stub = 0 ORDER BY COALESCE(s.display_name, s.canonical_name) COLLATE NOCASE"
+        return try {
+            db.rawQuery(sql, arrayOf("%" + text.trim().take(80).replace("%","").replace("'","") + "%")).use { c ->
+                buildList {
+                    val seen = HashSet<Long>()
+                    while (c.moveToNext()) {
+                        val id = c.getLong(0)
+                        if (!seen.add(id)) continue
+                        add(ConditionSub(id, c.getString(1)))
+                    }
+                }
+            }
+        } catch (e: SQLiteException) { emptyList() }
+    }
+
+    data class ConditionSub(val id: Long, val name: String)
+
     // ---- resolution ----
 
     private fun buildSubstance(c: CoreRow): Substance {

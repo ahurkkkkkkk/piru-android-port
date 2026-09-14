@@ -43,6 +43,15 @@ fun InsightsScreen(state: PiruState, now: Long) {
     if (detail == "bodyload") { BodyLoadScreen(state, now) { detail = null }; return }
     if (detail == "tolerance") { ToleranceScreen(state, now) { detail = null }; return }
     if (detail == "meds") { MyMedsScreen(state) { detail = null }; return }
+    if (detail == "social") {
+        Column(Modifier.fillMaxSize()) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 8.dp)) {
+                TextButton(onClick = { detail = null }) { Text("‹ Insights") }
+            }
+            SocialScreen(state)
+        }
+        return
+    }
 
     val dayStart = state.startOfDay(-29, now)
     val monthEntries = remember(state.entries, dayStart) { state.entriesForRange(dayStart, now) }
@@ -84,6 +93,18 @@ fun InsightsScreen(state: PiruState, now: Long) {
                     Column(Modifier.weight(1f)) {
                         Text("Tolerance", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                         Text("Mechanism-class gauges + recovery forecasts", fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Text("›", fontSize = 22.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+        item {
+            PiruCard {
+                Row(Modifier.fillMaxWidth().clickableOn { detail = "social" }, verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Account & friends", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        Text("Sync your journal across phones; adherence leaderboard", fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text("›", fontSize = 22.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
